@@ -1,0 +1,21 @@
+{
+  "name": "moodle-automation",
+  "version": "1.0.0",
+  "description": "",
+  "main": "script.js",
+  "scripts": {
+    "start": "node script.js",
+    "serve": "node -r dotenv/config script.js"
+  },
+  "keywords": [
+    "node",
+    "web-automation",
+    "puppeteer"
+  ],
+  "author": "Aldrin Jenson",
+  "license": "ISC",
+  "dependencies": {
+    "colors": "^1.4.0",
+    "dotenv": "^8.2.0"
+  }
+}
