@@ -1,18 +1,24 @@
 const puppeteer = require("puppeteer");
 require("dotenv").config();
+const cron = require("node-cron");
 const colors = require("colors");
 const logger = require("./logger");
-const links = require("./links");
+const subjectLinks = require("./subjectLinks");
+
+let timesChecked;
+let timesMarked;
+let subjectsMarked = [];
 
 const markAttendance = async (page) => {
+  timesChecked++;
   try {
-    for (const [subject, link] of Object.entries(links)) {
-      await page.goto(link, { waitUntil: "networkidle2" });
-      // await page.waitForSelector(".statuscol");
-      // const statusLink = await page.evaluate(() => {
-      //   return [...document.querySelectorAll(".statuscol a")];
-      // });
-      const statusLink = await page.$eval(".statuscol a", (el) => el);
+    for (const [subject, link] of Object.entries(subjectLinks)) {
+      await page.goto(link);
+      await page.waitForSelector(".statuscol");
+
+      const statusLink = await page.evaluate(() => {
+        return [...document.querySelectorAll(".statuscol a")];
+      });
       console.log(statusLink);
 
       if (statusLink && statusLink.length) {
@@ -44,6 +50,9 @@ const markAttendance = async (page) => {
             "Your attendance in this session has been recorded."
           ) {
             console.log(`Attendance marked for ${subject}`);
+            subjectsMarked.push(subject);
+            timesMarked++;
+            // delete subjectLinks[subject];
           } else {
             console.log(`Error in marking attendance for ${subject}`);
           }
@@ -70,16 +79,27 @@ const scrape = async () => {
 
   await markAttendance(page);
 
-  await browser.waitForTarget(() => false);
-  // await browser.close();
+  // await browser.waitForTarget(() => false);
+  await browser.close();
 };
 
 const main = () => {
-  try {
-    scrape();
-  } catch (error) {
-    logger.error(error);
-  }
+  console.log("Started and running cron-job");
+  cron.schedule("0 9-13 * * 1-5", () => {
+    timesChecked = 0;
+    timesMarked = 0;
+    // cron.schedule("* * * * *", () => {
+    try {
+      console.log(`Checking at ${new Date().toLocaleTimeString()}`);
+      console.log(`Times Checked = ${timesChecked}`);
+      console.log(`Times Marked Today = ${timesMarked}`);
+      console.log("Subjects Marked Today");
+      subjectsMarked.forEach((sub) => console.log(sub));
+      scrape();
+    } catch (error) {
+      logger.error(error);
+    }
+  });
 };
 
 main();
