@@ -28,6 +28,10 @@
       <% if(subjectLinks) Object.entries(subjectLinks).forEach(([sub,link])=>{%>
       <p><%= sub %>: <a href=" <%= link %> "> <%= link %> </a></p>
       <% }) %>
+
+      <iframe src="/logFile.txt" width="100%" frameborder="1"></iframe>
+
+      <a href="/logFile.html">Open logs</a>
     </div>
   </body>
 </html>

@@ -120,22 +120,23 @@ const scrape = async () => {
 
 const main = () => {
   console.log("Started and running cron-job");
-  // cron.schedule(timeExp, () => {
-  // cron.schedule(timeExp, () => {
-  let dt = new Date();
-  if (dt.getHours() < 9) {
-    timesChecked = 0;
-    timesMarked = 0;
-    subjectsMarked = [];
-    manuallyMarked = [];
-  }
-  try {
-    console.log(`\nChecking at ${dt.toLocaleTimeString("en-US", dateOptions)}`);
-    scrape();
-  } catch (error) {
-    console.error(error);
-  }
-  // });
+  cron.schedule(timeExp, () => {
+    let dt = new Date();
+    if (dt.getHours() < 9) {
+      timesChecked = 0;
+      timesMarked = 0;
+      subjectsMarked = [];
+      manuallyMarked = [];
+    }
+    try {
+      console.log(
+        `\nChecking at ${dt.toLocaleTimeString("en-US", dateOptions)}`
+      );
+      scrape();
+    } catch (error) {
+      console.error(error);
+    }
+  });
 };
 
 // main();
