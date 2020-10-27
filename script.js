@@ -1,12 +1,43 @@
 const puppeteer = require("puppeteer");
 require("dotenv").config();
 const cron = require("node-cron");
-const logger = require("./logger");
+const parser = require("cron-parser");
 const subjectLinks = require("./subjectLinks");
+const { dateOptions, formattedDateString } = require("./utils");
+
+console.log(formattedDateString);
+
+const timeExp = "0 9-13 * * 1-5";
+const interval = parser.parseExpression(timeExp);
 
 let timesChecked = 0;
 let timesMarked = 0;
 let subjectsMarked = [];
+let manuallyMarked = [];
+
+const checkManualMarking = async (page) => {
+  const isManuallyMarked = await page.evaluate(() => {
+    const nobr = [...document.querySelectorAll("nobr")].find(
+      (el) =>
+        el.innerText ===
+        new Date()
+          .toLocaleDateString("en-IN", {
+            weekday: "short",
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          })
+          .replace(/,/g, "")
+    );
+    if (!nobr) return false;
+    const parentRow = nobr.parentElement.parentElement;
+    const presentRows = [...document.querySelectorAll(".statuscol.cell.c2")]
+      .filter((el) => el.innerText === "Present")
+      .map((el) => el.parentElement);
+    return presentRows.includes(parentRow);
+  });
+  return isManuallyMarked;
+};
 
 const markAttendance = async (page) => {
   timesChecked++;
@@ -21,21 +52,11 @@ const markAttendance = async (page) => {
           return link ? link.href : "";
         });
 
-        // if (attendanceLink) {
-        // console.log(statusLink, "sup");
-        // await page.goto(statusLink, { waitUntil: "networkidle2" });
-
-        // console.log("error below this");
-        // const attendanceLink = await page.$eval(".statuscol.cell a", (e) =>
-        //   e ? e.href : ""
-        // );
-        // console.log("error above this");
-
         if (attendanceLink) {
           await page.goto(attendanceLink, { waitUntil: "networkidle2" });
 
           await page.evaluate(() => {
-            let label = [...document.querySelectorAll(".statusdesc")].find(
+            const label = [...document.querySelectorAll(".statusdesc")].find(
               (el) => el.innerText === "Present"
             );
             label.click();
@@ -59,12 +80,29 @@ const markAttendance = async (page) => {
             console.log(`Error in marking attendance for ${subject}`);
           }
         } else {
-          console.log(`Not available for ${subject}`);
+          const isManuallyMarked = await checkManualMarking(page);
+          if (isManuallyMarked) {
+            console.log(`Manually marked for ${subject}`);
+            manuallyMarked.push(subject);
+          } else console.log(`Not available for ${subject}`);
         }
       }
     }
   } catch (error) {
-    logger.error(error);
+    console.error(error);
+  } finally {
+    const subjectsLeft = Object.keys(subjectLinks).filter(
+      (sub) => !subjectsMarked.includes(sub) && !manuallyMarked.includes(sub)
+    );
+    console.log(`Times Checked = ${timesChecked}`);
+    console.log(`Times Marked Today = ${timesMarked}`);
+    console.log("Subjects Marked Today: " + subjectsMarked.join());
+    console.log("Subjects Manually marked Today: " + manuallyMarked.join());
+    console.log("Subjects Left to Mark: " + subjectsLeft.join());
+    console.log(
+      "Next check at " +
+        interval.next().toDate().toLocaleTimeString("en-US", dateOptions)
+    );
   }
 };
 
@@ -72,38 +110,40 @@ const scrape = async () => {
   const browser = await puppeteer.launch({ headless: false });
   const page = await browser.newPage();
   await page.goto(process.env.BASE_URL);
-
   await page.type("#username", process.env.USERNAME);
   await page.type("#password", process.env.PASS);
   await page.keyboard.press("Enter");
-
   await page.waitForSelector(".colatt");
-
   await markAttendance(page);
-
-  // await browser.waitForTarget(() => false);
   await browser.close();
 };
 
 const main = () => {
   console.log("Started and running cron-job");
-  cron.schedule("0 9-13 * * 1-5", () => {
-    // cron.schedule("* * * * *", () => {
-    if (new Date().getHours() < 10) {
-      timesChecked = 0;
-      timesMarked = 0;
-      subjectsMarked = [];
-    }
-    try {
-      console.log(`Checking at ${new Date().toLocaleTimeString()}`);
-      console.log(`Times Checked = ${timesChecked}`);
-      console.log(`Times Marked Today = ${timesMarked}`);
-      console.log("Subjects Marked Today: " + subjectsMarked.join());
-      scrape();
-    } catch (error) {
-      logger.error(error);
-    }
-  });
+  // cron.schedule(timeExp, () => {
+  // cron.schedule(timeExp, () => {
+  let dt = new Date();
+  if (dt.getHours() < 9) {
+    timesChecked = 0;
+    timesMarked = 0;
+    subjectsMarked = [];
+    manuallyMarked = [];
+  }
+  try {
+    console.log(`\nChecking at ${dt.toLocaleTimeString("en-US", dateOptions)}`);
+    scrape();
+  } catch (error) {
+    console.error(error);
+  }
+  // });
 };
 
-main();
+// main();
+
+module.exports = {
+  main,
+  subjectsMarked,
+  manuallyMarked,
+  timesMarked,
+  timesChecked,
+};
