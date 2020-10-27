@@ -7,7 +7,7 @@ const { dateOptions, formattedDateString } = require("./utils");
 
 console.log(formattedDateString);
 
-const timeExp = "0 9-13 * * 1-5";
+const timeExp = "0 9-14 * * 1-5";
 const interval = parser.parseExpression(timeExp);
 
 let timesChecked = 0;
@@ -107,7 +107,7 @@ const markAttendance = async (page) => {
 };
 
 const scrape = async () => {
-  const browser = await puppeteer.launch({ headless: false });
+  const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
   await page.goto(process.env.BASE_URL);
   await page.type("#username", process.env.USERNAME);
@@ -145,6 +145,7 @@ module.exports = {
   main,
   subjectsMarked,
   manuallyMarked,
+  scrape,
   timesMarked,
   timesChecked,
 };

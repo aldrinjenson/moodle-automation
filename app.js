@@ -4,6 +4,7 @@ const {
   manuallyMarked,
   timesMarked,
   timesChecked,
+  scrape,
 } = require("./script");
 const express = require("express");
 const subjectLinks = require("./subjectLinks");
@@ -28,6 +29,11 @@ app.get("/", (req, res) => {
     timesChecked,
     subjectsLeftToMark,
   });
+});
+
+app.get("/scrape", (req, res) => {
+  scrape();
+  res.redirect("/");
 });
 
 main();

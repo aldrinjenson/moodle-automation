@@ -4,5 +4,4 @@
 
 - Create a .env file similar to the example file
 - npm i
-- npm i puppeteer
 - run server
