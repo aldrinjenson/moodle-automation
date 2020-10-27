@@ -2,7 +2,10 @@
   "name": "moodle-automation",
   "version": "1.0.0",
   "description": "",
-  "main": "script.js",
+  "main": "app.js",
+  "engines": {
+    "node": "12.x"
+  },
   "scripts": {
     "start": "node app.js",
     "serve": "node -r dotenv/config script.js"
