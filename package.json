@@ -8,6 +8,7 @@
   },
   "scripts": {
     "start": "node app.js > public/logFile.txt",
+    "dev": "nodemon app.js > public/logFile.txt",
     "serve": "node -r dotenv/config script.js"
   },
   "keywords": [

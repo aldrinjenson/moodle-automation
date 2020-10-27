@@ -3,9 +3,7 @@ require("dotenv").config();
 const cron = require("node-cron");
 const parser = require("cron-parser");
 const subjectLinks = require("./subjectLinks");
-const { dateOptions, formattedDateString } = require("./utils");
-
-console.log(formattedDateString);
+const { dateOptions } = require("./utils");
 
 const timeExp = "0 9-14 * * 1-5";
 const interval = parser.parseExpression(timeExp);
@@ -43,7 +41,10 @@ const markAttendance = async (page) => {
   timesChecked++;
   try {
     for (const [subject, subjectLink] of Object.entries(subjectLinks)) {
-      if (!subjectsMarked.includes(subject)) {
+      if (
+        !subjectsMarked.includes(subject) &&
+        !manuallyMarked.includes(subject)
+      ) {
         await page.goto(subjectLink);
         await page.waitForSelector(".statuscol");
 
@@ -99,15 +100,11 @@ const markAttendance = async (page) => {
     console.log("Subjects Marked Today: " + subjectsMarked.join());
     console.log("Subjects Manually marked Today: " + manuallyMarked.join());
     console.log("Subjects Left to Mark: " + subjectsLeft.join());
-    console.log(
-      "Next check at " +
-        interval.next().toDate().toLocaleTimeString("en-US", dateOptions)
-    );
   }
 };
 
 const scrape = async () => {
-  const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
+  const browser = await puppeteer.launch({ args: ["--no-sandbox"] });
   const page = await browser.newPage();
   await page.goto(process.env.BASE_URL);
   await page.type("#username", process.env.USERNAME);
@@ -131,6 +128,10 @@ const main = () => {
     try {
       console.log(
         `\nChecking at ${dt.toLocaleTimeString("en-US", dateOptions)}`
+      );
+      console.log(
+        "Next check at " +
+          interval.next().toDate().toLocaleTimeString("en-US", dateOptions)
       );
       scrape();
     } catch (error) {

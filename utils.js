@@ -1,3 +1,5 @@
+const fs = require("fs");
+
 const dateOptions = { hour: "numeric", minute: "numeric", hour12: true };
 
 const formattedTodaysDate = new Date()
@@ -11,4 +13,10 @@ const formattedTodaysDate = new Date()
 
 const formattedDateString = formattedTodaysDate.replace(/,/g, "");
 
-module.exports = { dateOptions, formattedDateString };
+const clear = async () => {
+  fs.truncate("logFile.txt", 0, () => {
+    return true;
+  });
+};
+
+module.exports = { dateOptions, clear };
