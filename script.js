@@ -107,7 +107,7 @@ const markAttendance = async (page) => {
 };
 
 const scrape = async () => {
-  const browser = await puppeteer.launch({ headless: true });
+  const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
   const page = await browser.newPage();
   await page.goto(process.env.BASE_URL);
   await page.type("#username", process.env.USERNAME);
