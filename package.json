@@ -19,14 +19,12 @@
   "author": "Aldrin Jenson",
   "license": "ISC",
   "dependencies": {
-    "colors": "^1.4.0",
     "cron-parser": "^2.16.3",
     "dotenv": "^8.2.0",
     "ejs": "^3.1.5",
     "express": "^4.17.1",
     "node-cron": "^2.0.3",
     "node-telegram-bot-api": "^0.50.0",
-    "puppeteer": "^5.4.0",
-    "twilio": "^3.50.0"
+    "puppeteer": "^5.4.0"
   }
 }

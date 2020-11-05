@@ -41,7 +41,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/scrape", (req, res) => {
-  scrape();
+  scrape(bot);
   res.redirect("/");
 });
 app.listen(PORT);
