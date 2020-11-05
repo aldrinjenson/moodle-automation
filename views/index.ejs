@@ -24,14 +24,20 @@
   <body>
     <div class="container">
       <h1 class="text-center">Attendance Report</h1>
-      <h3>Subjects Marked Today:</h3>
-      <span><%= subjectsMarked.join() %></span>
+      <div style="clear: both">
+        <h3>Subjects Marked Today:</h3>
+        <span><%= subjectsMarked.join(', ') %></span>
+      </div>
 
-      <h3>Manually Marked Subjects:</h3>
-      <span><%= manuallyMarked.join() %></span>
+      <div style="clear: both">
+        <h3>Manually Marked Subjects:</h3>
+        <span><%= manuallyMarked.join(', ') %></span>
+      </div>
 
-      <h3>Subjects Left for today:</h3>
-      <span><%= subjectsLeftToMark.join() %></span>
+      <div style="clear: both">
+        <h3>Subjects Left for today:</h3>
+        <span><%= subjectsLeftToMark.join(', ') %></span>
+      </div>
 
       <h3>Links Entered:</h3>
       <% if(subjectLinks) Object.entries(subjectLinks).forEach(([sub,link])=>{%>
@@ -41,12 +47,7 @@
       <a href="/scrape" class="btn btn-info m-2">Scrape Manually </a>
 
       <a class="ml-2 mb-3" href="/temp.txt">Open logs</a>
-      <iframe
-        src="/temp.txt"
-        width="100%"
-        height="100%"
-        frameborder="1"
-      ></iframe>
+      <iframe src="/temp.txt" width="100%" frameborder="1"></iframe>
     </div>
   </body>
 </html>

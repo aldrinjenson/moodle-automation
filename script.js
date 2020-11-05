@@ -78,8 +78,16 @@ const markAttendance = async (page, bot) => {
             logMsg(`Attendance marked for ${subject}`);
             subjectsMarked.push(subject);
             timesMarked++;
+            bot.sendMessage(
+              process.env.CHAT_ID,
+              `Attendance marked for ${subject}`
+            );
           } else {
             logMsg(`Error in marking attendance for ${subject}`);
+            bot.sendMessage(
+              process.env.CHAT_ID,
+              `Attendance marking error for ${subject}`
+            );
           }
         } else {
           const isManuallyMarked = await checkManualMarking(page);
@@ -98,9 +106,9 @@ const markAttendance = async (page, bot) => {
     );
     logMsg(`Times Checked = ${timesChecked}`);
     logMsg(`Times Marked Today = ${timesMarked}`);
-    logMsg("Subjects Marked Today: " + subjectsMarked.join());
-    logMsg("Subjects Manually marked Today: " + manuallyMarked.join());
-    logMsg("Subjects Left to Mark: " + subjectsLeft.join());
+    logMsg("Subjects Marked Today: " + subjectsMarked.join(", "));
+    logMsg("Subjects Manually marked Today: " + manuallyMarked.join(", "));
+    logMsg("Subjects Left to Mark: " + subjectsLeft.join(", "));
     sendLogs(bot);
   }
 };
