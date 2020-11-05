@@ -7,7 +7,7 @@
     "node": "12.x"
   },
   "scripts": {
-    "start": "node -r dotenv/config app.js > public/logFile.txt 2 > public/errorFile.txt",
+    "start": "node -r dotenv/config app.js",
     "dev": "nodemon -r dotenv/config app.js",
     "serve": "node -r dotenv/config script.js"
   },
