@@ -1,12 +1,23 @@
-// const fs = require("fs");
-// const logStream = fs.createWriteStream("logs.txt", { flags: "a" });
+const fs = require("fs");
+const filePath = "./public/temp.txt";
+const logStream = fs.createWriteStream(filePath, { flags: "a" });
 
-// const logger = (msg) => {
-//   console.log(msg);
-//   if (typeof msg !== String) {
-//     msg = JSON.stringify(msg);
-//   }
-//   logStream.write(msg + "\n");
-// };
+const logMsg = (msg) => {
+  console.log(msg);
+  logStream.write(msg + "\n");
+};
 
-// module.exports = logger;
+const sendLogs = (bot) => {
+  fs.readFile(filePath, (err, data) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+    bot.sendMessage(process.env.CHAT_ID, data.toString());
+  });
+  fs.writeFile(filePath, "", function () {
+    console.log("File cleared");
+  });
+};
+
+module.exports = { logMsg, sendLogs };

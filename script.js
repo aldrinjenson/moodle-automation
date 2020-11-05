@@ -1,9 +1,10 @@
 const puppeteer = require("puppeteer");
-require("dotenv").config();
+// require("dotenv").config();
 const cron = require("node-cron");
 const parser = require("cron-parser");
 const subjectLinks = require("./subjectLinks");
 const { dateOptions } = require("./utils");
+const { logMsg, sendLogs } = require("./logger");
 
 const timeExp = "0 9-14 * * 1-5";
 const interval = parser.parseExpression(timeExp);
@@ -37,7 +38,7 @@ const checkManualMarking = async (page) => {
   return isManuallyMarked;
 };
 
-const markAttendance = async (page) => {
+const markAttendance = async (page, bot) => {
   timesChecked++;
   try {
     for (const [subject, subjectLink] of Object.entries(subjectLinks)) {
@@ -74,18 +75,18 @@ const markAttendance = async (page) => {
             notificationText.slice(2) ===
             "Your attendance in this session has been recorded."
           ) {
-            console.log(`Attendance marked for ${subject}`);
+            logMsg(`Attendance marked for ${subject}`);
             subjectsMarked.push(subject);
             timesMarked++;
           } else {
-            console.log(`Error in marking attendance for ${subject}`);
+            logMsg(`Error in marking attendance for ${subject}`);
           }
         } else {
           const isManuallyMarked = await checkManualMarking(page);
           if (isManuallyMarked) {
-            console.log(`Manually marked for ${subject}`);
+            logMsg(`Manually marked for ${subject}`);
             manuallyMarked.push(subject);
-          } else console.log(`Not available for ${subject}`);
+          } else logMsg(`Not available for ${subject}`);
         }
       }
     }
@@ -95,15 +96,16 @@ const markAttendance = async (page) => {
     const subjectsLeft = Object.keys(subjectLinks).filter(
       (sub) => !subjectsMarked.includes(sub) && !manuallyMarked.includes(sub)
     );
-    console.log(`Times Checked = ${timesChecked}`);
-    console.log(`Times Marked Today = ${timesMarked}`);
-    console.log("Subjects Marked Today: " + subjectsMarked.join());
-    console.log("Subjects Manually marked Today: " + manuallyMarked.join());
-    console.log("Subjects Left to Mark: " + subjectsLeft.join());
+    logMsg(`Times Checked = ${timesChecked}`);
+    logMsg(`Times Marked Today = ${timesMarked}`);
+    logMsg("Subjects Marked Today: " + subjectsMarked.join());
+    logMsg("Subjects Manually marked Today: " + manuallyMarked.join());
+    logMsg("Subjects Left to Mark: " + subjectsLeft.join());
+    sendLogs(bot);
   }
 };
 
-const scrape = async () => {
+const scrape = async (bot) => {
   const browser = await puppeteer.launch({ args: ["--no-sandbox"] });
   const page = await browser.newPage();
   await page.goto(process.env.BASE_URL);
@@ -111,12 +113,12 @@ const scrape = async () => {
   await page.type("#password", process.env.PASS);
   await page.keyboard.press("Enter");
   await page.waitForSelector(".colatt");
-  await markAttendance(page);
+  await markAttendance(page, bot);
   await browser.close();
 };
 
-const main = () => {
-  console.log("Started and running cron-job");
+const main = (bot) => {
+  logMsg("Started and running cron-job");
   cron.schedule(timeExp, () => {
     let dt = new Date();
     if (dt.getHours() < 9) {
@@ -126,14 +128,12 @@ const main = () => {
       manuallyMarked = [];
     }
     try {
-      console.log(
-        `\nChecking at ${dt.toLocaleTimeString("en-US", dateOptions)}`
-      );
-      console.log(
+      logMsg(`\nChecking at ${dt.toLocaleTimeString("en-US", dateOptions)}`);
+      logMsg(
         "Next check at " +
           interval.next().toDate().toLocaleTimeString("en-US", dateOptions)
       );
-      scrape();
+      scrape(bot);
     } catch (error) {
       console.error(error);
     }

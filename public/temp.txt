@@ -1,0 +1,9 @@
+Times Checked = 1
+Times Marked Today = 0
+Subjects Marked Today: 
+Subjects Manually marked Today: Ds,Lsd,EcEMinor
+Subjects Left to Mark: Ds_Lab,OopLab,DMS,SustainableEngineering
+
+
+Started and running cron-job
+Started and running cron-job
