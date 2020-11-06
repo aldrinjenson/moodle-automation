@@ -15,7 +15,7 @@ const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
 
 bot.onText(/\/scrape/, () => {
   bot.sendMessage(process.env.CHAT_ID, "Scraping..");
-  scrape(bot);
+  scrape(bot, true);
 });
 
 const PORT = process.env.PORT || 5000;

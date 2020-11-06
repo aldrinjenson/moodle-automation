@@ -38,7 +38,7 @@ const checkManualMarking = async (page) => {
   return isManuallyMarked;
 };
 
-const markAttendance = async (page, bot) => {
+const markAttendance = async (page, bot, isFromTelegram) => {
   timesChecked++;
   try {
     for (const [subject, subjectLink] of Object.entries(subjectLinks)) {
@@ -109,11 +109,11 @@ const markAttendance = async (page, bot) => {
     logMsg("Subjects Marked Today: " + subjectsMarked.join(", "));
     logMsg("Subjects Manually marked Today: " + manuallyMarked.join(", "));
     logMsg("Subjects Left to Mark: " + subjectsLeft.join(", "));
-    sendLogs(bot);
+    isFromTelegram && sendLogs(bot);
   }
 };
 
-const scrape = async (bot) => {
+const scrape = async (bot, isFromTelegram = false) => {
   const browser = await puppeteer.launch({ args: ["--no-sandbox"] });
   const page = await browser.newPage();
   await page.goto(process.env.BASE_URL);
@@ -121,7 +121,7 @@ const scrape = async (bot) => {
   await page.type("#password", process.env.PASS);
   await page.keyboard.press("Enter");
   await page.waitForSelector(".colatt");
-  await markAttendance(page, bot);
+  await markAttendance(page, bot, isFromTelegram);
   await browser.close();
 };
 

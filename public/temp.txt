@@ -1,0 +1,5 @@
+Times Checked = 2
+Times Marked Today = 0
+Subjects Marked Today: 
+Subjects Manually marked Today: LSD, Desing & Engineering
+Subjects Left to Mark: Ds Lab, Oop Lab, DSA, DMS, Sustainable Engineering, EcE Minor
