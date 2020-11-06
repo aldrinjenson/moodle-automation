@@ -4,7 +4,7 @@ const cron = require("node-cron");
 const parser = require("cron-parser");
 const subjectLinks = require("./subjectLinks");
 const { dateOptions } = require("./utils");
-const { logMsg, sendLogs } = require("./logger");
+const { logMsg, sendLogs, clearLogs } = require("./logger");
 
 const timeExp = "0 9-14 * * 1-5";
 const interval = parser.parseExpression(timeExp);
@@ -114,6 +114,19 @@ const markAttendance = async (page, bot) => {
 };
 
 const scrape = async (bot) => {
+  let dt = new Date();
+  if (dt.getHours() < 9) {
+    timesChecked = 0;
+    timesMarked = 0;
+    subjectsMarked = [];
+    manuallyMarked = [];
+    clearLogs();
+  }
+  logMsg(`\nChecking at ${dt.toLocaleTimeString("en-US", dateOptions)}`);
+  logMsg(
+    "Next check at " +
+      interval.next().toDate().toLocaleTimeString("en-US", dateOptions)
+  );
   const browser = await puppeteer.launch({ args: ["--no-sandbox"] });
   const page = await browser.newPage();
   await page.goto(process.env.BASE_URL);
@@ -125,33 +138,7 @@ const scrape = async (bot) => {
   await browser.close();
 };
 
-const main = (bot) => {
-  logMsg("Started and running cron-job");
-  cron.schedule(timeExp, () => {
-    let dt = new Date();
-    if (dt.getHours() < 9) {
-      timesChecked = 0;
-      timesMarked = 0;
-      subjectsMarked = [];
-      manuallyMarked = [];
-    }
-    try {
-      logMsg(`\nChecking at ${dt.toLocaleTimeString("en-US", dateOptions)}`);
-      logMsg(
-        "Next check at " +
-          interval.next().toDate().toLocaleTimeString("en-US", dateOptions)
-      );
-      scrape(bot);
-    } catch (error) {
-      console.error(error);
-    }
-  });
-};
-
-// main();
-
 module.exports = {
-  main,
   subjectsMarked,
   manuallyMarked,
   scrape,

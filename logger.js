@@ -21,4 +21,8 @@ const sendLogs = (bot) => {
   });
 };
 
-module.exports = { logMsg, sendLogs };
+const clearLogs = () => {
+  fs.writeFile("./public/logs", "");
+};
+
+module.exports = { logMsg, sendLogs, clearLogs };

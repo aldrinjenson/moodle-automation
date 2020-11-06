@@ -18,17 +18,21 @@ bot.onText(/\/scrape/, () => {
   scrape(bot);
 });
 
+bot.onText(/\/logs/, () => {
+  bot.sendMessage(process.env.CHAT_ID, "Getting logs for today..");
+});
+
 const PORT = process.env.PORT || 5000;
 const app = express();
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 
-const subjectsLeftToMark = Object.keys(subjectLinks).filter(
-  (subject) =>
-    !subjectsMarked.includes(subject) && !manuallyMarked.includes(subject)
-);
-
 app.get("/", (req, res) => {
+  const subjectsLeftToMark = Object.keys(subjectLinks).filter(
+    (subject) =>
+      !subjectsMarked.includes(subject) && !manuallyMarked.includes(subject)
+  );
+
   res.render("index", {
     main,
     subjectLinks,
@@ -42,8 +46,6 @@ app.get("/", (req, res) => {
 
 app.get("/scrape", (req, res) => {
   scrape(bot);
-  res.redirect("/");
+  res.send(200);
 });
 app.listen(PORT);
-
-main(bot);
