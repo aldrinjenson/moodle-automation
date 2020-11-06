@@ -1,6 +1,5 @@
 const puppeteer = require("puppeteer");
 // require("dotenv").config();
-const cron = require("node-cron");
 const parser = require("cron-parser");
 const subjectLinks = require("./subjectLinks");
 const { dateOptions } = require("./utils");
@@ -9,8 +8,6 @@ const { logMsg, sendLogs, clearLogs } = require("./logger");
 const timeExp = "0 9-14 * * 1-5";
 const interval = parser.parseExpression(timeExp);
 
-let timesChecked = 0;
-let timesMarked = 0;
 let subjectsMarked = [];
 let manuallyMarked = [];
 
@@ -39,7 +36,6 @@ const checkManualMarking = async (page) => {
 };
 
 const markAttendance = async (page, bot) => {
-  timesChecked++;
   try {
     for (const [subject, subjectLink] of Object.entries(subjectLinks)) {
       if (
@@ -77,7 +73,6 @@ const markAttendance = async (page, bot) => {
           ) {
             logMsg(`Attendance marked for ${subject}`);
             subjectsMarked.push(subject);
-            timesMarked++;
             bot.sendMessage(
               process.env.CHAT_ID,
               `Attendance marked for ${subject}`
@@ -104,44 +99,44 @@ const markAttendance = async (page, bot) => {
     const subjectsLeft = Object.keys(subjectLinks).filter(
       (sub) => !subjectsMarked.includes(sub) && !manuallyMarked.includes(sub)
     );
-    logMsg(`Times Checked = ${timesChecked}`);
-    logMsg(`Times Marked Today = ${timesMarked}`);
-    logMsg("Subjects Marked Today: " + subjectsMarked.join(", "));
+    logMsg("\nSubjects Marked Today: " + subjectsMarked.join(", "));
     logMsg("Subjects Manually marked Today: " + manuallyMarked.join(", "));
-    logMsg("Subjects Left to Mark: " + subjectsLeft.join(", "));
-    sendLogs(bot);
+    logMsg("Subjects Left to Mark: " + subjectsLeft.join(", ") + "\n");
   }
 };
 
-const scrape = async (bot) => {
+const scrape = async (bot, fromBot = false) => {
   let dt = new Date();
-  if (dt.getHours() < 9) {
-    timesChecked = 0;
-    timesMarked = 0;
+  if (dt.getHours() < 10) {
+    // first try
     subjectsMarked = [];
     manuallyMarked = [];
     clearLogs();
   }
-  logMsg(`\nChecking at ${dt.toLocaleTimeString("en-US", dateOptions)}`);
+  logMsg(`\nChecking at ${dt.toLocaleString()}`);
   logMsg(
     "Next check at " +
       interval.next().toDate().toLocaleTimeString("en-US", dateOptions)
   );
-  const browser = await puppeteer.launch({ args: ["--no-sandbox"] });
-  const page = await browser.newPage();
-  await page.goto(process.env.BASE_URL);
-  await page.type("#username", process.env.USERNAME);
-  await page.type("#password", process.env.PASS);
-  await page.keyboard.press("Enter");
-  await page.waitForSelector(".colatt");
-  await markAttendance(page, bot);
-  await browser.close();
+  try {
+    const browser = await puppeteer.launch({ args: ["--no-sandbox"] });
+    const page = await browser.newPage();
+    await page.goto(process.env.BASE_URL);
+    await page.type("#username", process.env.USERNAME);
+    await page.type("#password", process.env.PASS);
+    await page.keyboard.press("Enter");
+    await page.waitForSelector(".colatt");
+    await markAttendance(page, bot);
+    await browser.close();
+  } catch (error) {
+    console.error(error);
+  } finally {
+    if (fromBot) sendLogs(bot);
+  }
 };
 
 module.exports = {
   subjectsMarked,
   manuallyMarked,
   scrape,
-  timesMarked,
-  timesChecked,
 };

@@ -18,23 +18,30 @@
         display: flex;
         flex-direction: column;
       }
+      .row-entry {
+        display: flex;
+        align-items: center;
+      }
+      .row-entry p {
+        margin: 23px auto auto 15px;
+      }
     </style>
   </head>
 
   <body>
     <div class="container" style="margin-bottom: 35px">
       <h1 class="text-center">Attendance Report</h1>
-      <div style="clear: both">
+      <div class="row-entry">
         <h3>Subjects Marked Today:</h3>
         <p><%= subjectsMarked.join(', ') %></p>
       </div>
 
-      <div style="clear: both">
+      <div class="row-entry">
         <h3>Manually Marked Subjects:</h3>
         <p><%= manuallyMarked.join(', ') %></p>
       </div>
 
-      <div style="clear: both">
+      <div class="row-entry">
         <h3>Subjects Left for today:</h3>
         <p><%= subjectsLeftToMark.join(', ') %></p>
       </div>
@@ -45,8 +52,9 @@
       <% }) %>
 
       <a href="/scrape" class="btn btn-info m-2">Scrape Manually </a>
+      <a href="/clear" class="m-2">Clear Daily log </a>
+      <a class="btn btn-info" href="/logs.txt">Open logs</a>
 
-      <a class="ml-2 mb-3" href="/logs.txt">Open logs</a>
       <iframe src="/temp.txt" width="100%" frameborder="1"></iframe>
     </div>
   </body>

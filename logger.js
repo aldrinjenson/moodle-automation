@@ -8,21 +8,24 @@ const logMsg = (msg) => {
   logStream.write(msg + "\n");
 };
 
+const clearLogs = () => {
+  fs.writeFile(filePath, "", function () {
+    console.log("Temp log cleared");
+  });
+};
+
 const sendLogs = (bot) => {
   fs.readFile(filePath, (err, data) => {
     if (err) {
       console.error(err);
       return;
     }
-    bot.sendMessage(process.env.CHAT_ID, data.toString());
+    bot
+      .sendMessage(process.env.CHAT_ID, data.toString() || "Log empty")
+      .then(() => {
+        clearLogs();
+      });
   });
-  fs.writeFile(filePath, "", function () {
-    console.log("File cleared");
-  });
-};
-
-const clearLogs = () => {
-  fs.writeFile("./public/logs", "");
 };
 
 module.exports = { logMsg, sendLogs, clearLogs };
