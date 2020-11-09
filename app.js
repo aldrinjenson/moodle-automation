@@ -23,14 +23,13 @@ const app = express();
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 
-const subjectsLeftToMark = Object.keys(subjectLinks).filter(
-  (subject) =>
-    !subjectsMarked.includes(subject) && !manuallyMarked.includes(subject)
-);
-
 app.get("/", (req, res) => {
+  const subjectsLeftToMark = Object.keys(subjectLinks).filter(
+    (subject) =>
+      !subjectsMarked.includes(subject) && !manuallyMarked.includes(subject)
+  );
+
   res.render("index", {
-    main,
     subjectLinks,
     subjectsMarked,
     manuallyMarked,
@@ -43,7 +42,8 @@ app.get("/", (req, res) => {
 app.get("/scrape", (req, res) => {
   scrape(bot);
   res.status(200).redirect("/");
+  console.log("reqiest to scrape made fine");
 });
 app.listen(PORT);
 
-// main(bot);
+main(bot);

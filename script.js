@@ -135,28 +135,28 @@ const scrape = async (bot, isFromTelegram = false) => {
   await browser.close();
 };
 
-// const main = (bot) => {
-//   logMsg("Started and running cron-job");
-//   cron.schedule(timeExp, () => {
-//     let dt = new Date();
-//     if (dt.getHours() < 9) {
-//       timesChecked = 0;
-//       timesMarked = 0;
-//       subjectsMarked = [];
-//       manuallyMarked = [];
-//     }
-//     try {
-//       logMsg(`\nChecking at ${dt.toLocaleTimeString("en-US", dateOptions)}`);
-//       logMsg(
-//         "Next check at " +
-//           interval.next().toDate().toLocaleTimeString("en-US", dateOptions)
-//       );
-//       scrape(bot);
-//     } catch (error) {
-//       console.error(error);
-//     }
-//   });
-// };
+const main = (bot) => {
+  logMsg("Started and running cron-job");
+  cron.schedule(timeExp, () => {
+    let dt = new Date();
+    if (dt.getHours() < 9) {
+      timesChecked = 0;
+      timesMarked = 0;
+      subjectsMarked = [];
+      manuallyMarked = [];
+    }
+    try {
+      logMsg(`\nChecking at ${dt.toLocaleTimeString("en-US", dateOptions)}`);
+      logMsg(
+        "Next check at " +
+          interval.next().toDate().toLocaleTimeString("en-US", dateOptions)
+      );
+      scrape(bot);
+    } catch (error) {
+      console.error(error);
+    }
+  });
+};
 
 // main();
 
