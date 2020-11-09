@@ -42,8 +42,8 @@ app.get("/", (req, res) => {
 
 app.get("/scrape", (req, res) => {
   scrape(bot);
-  res.redirect("/");
+  res.status(200).redirect("/");
 });
 app.listen(PORT);
 
-main(bot);
+// main(bot);
