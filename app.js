@@ -1,5 +1,5 @@
 const {
-  main,
+  // main,
   subjectsMarked,
   manuallyMarked,
   timesMarked,
@@ -42,8 +42,8 @@ app.get("/", (req, res) => {
 app.get("/scrape", (req, res) => {
   scrape(bot);
   res.status(200).redirect("/");
-  console.log("reqiest to scrape made fine");
+  console.log("request recieved to scrape");
 });
 app.listen(PORT);
 
-main(bot);
+// main(bot);

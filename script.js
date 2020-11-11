@@ -132,6 +132,10 @@ const scrape = async (bot, isFromTelegram = false) => {
   await page.keyboard.press("Enter");
   await page.waitForSelector(".colatt");
   await markAttendance(page, bot, isFromTelegram);
+  logMsg(
+    "Next check at " +
+      interval.next().toDate().toLocaleTimeString("en-US", dateOptions)
+  );
   await browser.close();
 };
 
@@ -161,7 +165,7 @@ const main = (bot) => {
 // main();
 
 module.exports = {
-  main,
+  // main,
   subjectsMarked,
   manuallyMarked,
   scrape,
