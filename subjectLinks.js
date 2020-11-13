@@ -9,7 +9,7 @@ const subjectLinks = {
   "EcE Minor": "http://moodle.mec.ac.in/mod/attendance/view.php?id=948",
   "Design & Engineering":
     "http://moodle.mec.ac.in/mod/attendance/view.php?id=345",
-  OOP: "http://moodle.mec.ac.in/course/view.php?id=131",
+  // OOP: "http://moodle.mec.ac.in/course/view.php?id=131",
 };
 
 module.exports = subjectLinks;

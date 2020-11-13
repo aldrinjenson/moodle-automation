@@ -1,18 +1,10 @@
 const puppeteer = require("puppeteer");
 // require("dotenv").config();
-const cron = require("node-cron");
-const parser = require("cron-parser");
 const subjectLinks = require("./subjectLinks");
-const { dateOptions } = require("./utils");
+const { dateOptions, readObjFromFile, writeObjToFile } = require("./utils");
 const { logMsg, sendLogs } = require("./logger");
 
-const timeExp = "0 9-14 * * 1-5";
-const interval = parser.parseExpression(timeExp);
-
-let timesChecked = 0;
-let timesMarked = 0;
-let subjectsMarked = [];
-let manuallyMarked = [];
+let checkDetails;
 
 const checkManualMarking = async (page) => {
   const isManuallyMarked = await page.evaluate(() => {
@@ -39,12 +31,12 @@ const checkManualMarking = async (page) => {
 };
 
 const markAttendance = async (page, bot, isFromTelegram) => {
-  timesChecked++;
+  checkDetails.timesChecked++;
   try {
     for (const [subject, subjectLink] of Object.entries(subjectLinks)) {
       if (
-        !subjectsMarked.includes(subject) &&
-        !manuallyMarked.includes(subject)
+        !checkDetails.subjectsMarked.includes(subject) &&
+        !checkDetails.manuallyMarked.includes(subject)
       ) {
         await page.goto(subjectLink);
         await page.waitForSelector(".statuscol");
@@ -76,8 +68,8 @@ const markAttendance = async (page, bot, isFromTelegram) => {
             "Your attendance in this session has been recorded."
           ) {
             logMsg(`Attendance marked for ${subject}`);
-            subjectsMarked.push(subject);
-            timesMarked++;
+            checkDetails.subjectsMarked.push(subject);
+            checkDetails.timesMarked++;
             bot.sendMessage(
               process.env.CHAT_ID,
               `Attendance marked for ${subject}`
@@ -93,7 +85,7 @@ const markAttendance = async (page, bot, isFromTelegram) => {
           const isManuallyMarked = await checkManualMarking(page);
           if (isManuallyMarked) {
             logMsg(`Manually marked for ${subject}`);
-            manuallyMarked.push(subject);
+            checkDetails.manuallyMarked.push(subject);
           } else logMsg(`Not available for ${subject}`);
         }
       }
@@ -101,29 +93,41 @@ const markAttendance = async (page, bot, isFromTelegram) => {
   } catch (error) {
     console.error(error);
   } finally {
-    const subjectsLeft = Object.keys(subjectLinks).filter(
-      (sub) => !subjectsMarked.includes(sub) && !manuallyMarked.includes(sub)
+    checkDetails.subjectsLeft = Object.keys(subjectLinks).filter(
+      (sub) =>
+        !checkDetails.subjectsMarked.includes(sub) &&
+        !checkDetails.manuallyMarked.includes(sub)
     );
-    logMsg(`Times Checked = ${timesChecked}`);
-    logMsg(`Times Marked Today = ${timesMarked}`);
-    logMsg("Subjects Marked Today: " + subjectsMarked.join(", "));
-    logMsg("Subjects Manually marked Today: " + manuallyMarked.join(", "));
-    logMsg("Subjects Left to Mark: " + subjectsLeft.join(", "));
+    logMsg(`Times Checked = ${checkDetails.timesChecked}`);
+    logMsg(`Times Marked Today = ${checkDetails.timesMarked}`);
+    logMsg("Subjects Marked Today: " + checkDetails.subjectsMarked.join(", "));
+    logMsg(
+      "Subjects Manually marked Today: " +
+        checkDetails.manuallyMarked.join(", ")
+    );
+    logMsg("Subjects Left to Mark: " + checkDetails.subjectsLeft.join(", "));
+    logMsg("Next check at " + checkDetails.nextCheckAt);
     isFromTelegram && sendLogs(bot);
   }
 };
 
 const scrape = async (bot, isFromTelegram = false) => {
+  checkDetails = await readObjFromFile();
   let dt = new Date();
+  logMsg(`\nChecking at ${dt.toLocaleTimeString()}`);
   if (dt.getHours() < 9) {
-    timesChecked = 0;
-    timesMarked = 0;
-    subjectsMarked = [];
-    manuallyMarked = [];
+    checkDetails.timesChecked = 0;
+    checkDetails.timesMarked = 0;
+    checkDetails.subjectsMarked = [];
+    checkDetails.manuallyMarked = [];
   }
-  logMsg(`\nChecking at ${dt.toLocaleTimeString("en-US", dateOptions)}`);
-  console.log("Subjects marked = ", subjectsMarked.join(","));
-  console.log("times checked = " + timesChecked);
+  dt.setMinutes(1);
+  dt.setHours(dt.getHours() == 3 ? 9 : dt.getHours() + 1);
+  checkDetails.nextCheckAt = dt.toLocaleTimeString("en-US", dateOptions);
+
+  console.log("Subjects marked = ", checkDetails.subjectsMarked.join(","));
+  console.log("times checked = " + checkDetails.timesChecked);
+
   const browser = await puppeteer.launch({ args: ["--no-sandbox"] });
   const page = await browser.newPage();
   await page.goto(process.env.BASE_URL);
@@ -132,43 +136,8 @@ const scrape = async (bot, isFromTelegram = false) => {
   await page.keyboard.press("Enter");
   await page.waitForSelector(".colatt");
   await markAttendance(page, bot, isFromTelegram);
-  logMsg(
-    "Next check at " +
-      interval.next().toDate().toLocaleTimeString("en-US", dateOptions)
-  );
   await browser.close();
+  writeObjToFile(checkDetails);
 };
 
-// const main = (bot) => {
-//   logMsg("Started and running cron-job");
-//   cron.schedule(timeExp, () => {
-//     let dt = new Date();
-//     if (dt.getHours() < 9) {
-//       timesChecked = 0;
-//       timesMarked = 0;
-//       subjectsMarked = [];
-//       manuallyMarked = [];
-//     }
-//     try {
-//       logMsg(`\nChecking at ${dt.toLocaleTimeString("en-US", dateOptions)}`);
-//       logMsg(
-//         "Next check at " +
-//           interval.next().toDate().toLocaleTimeString("en-US", dateOptions)
-//       );
-//       scrape(bot);
-//     } catch (error) {
-//       console.error(error);
-//     }
-//   });
-// };
-
-// main();
-
-module.exports = {
-  // main,
-  subjectsMarked,
-  manuallyMarked,
-  scrape,
-  timesMarked,
-  timesChecked,
-};
+module.exports = scrape;

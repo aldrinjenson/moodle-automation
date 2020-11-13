@@ -36,8 +36,10 @@
 
       <div style="clear: both">
         <h3>Subjects Left for today:</h3>
-        <p><%= subjectsLeftToMark.join(', ') %></p>
+        <p><%= subjectsLeft.join(', ') %></p>
       </div>
+
+      <h4>Next Check at: <%= nextCheckAt %>  </h4>
 
       <h3>Links Entered:</h3>
       <% if(subjectLinks) Object.entries(subjectLinks).forEach(([sub,link])=>{%>
