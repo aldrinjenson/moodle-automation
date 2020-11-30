@@ -1,1 +1,1 @@
-{"timesChecked":10,"timesMarked":1,"subjectsMarked":["EcE Minor"],"manuallyMarked":["LSD"],"nextCheckAt":"2:01 PM","subjectsLeft":["Ds Lab","Oop Lab","DSA","DMS"]}
+{"timesChecked":24,"timesMarked":2,"subjectsMarked":["EcE Minor","Oop Lab"],"manuallyMarked":["LSD"],"nextCheckAt":"3:01 PM","subjectsLeft":["Ds Lab","DSA","DMS","Design & Engineering"]}

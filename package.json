@@ -7,7 +7,7 @@
     "node": "12.x"
   },
   "scripts": {
-    "start": "node -r dotenv/config app.js > ./public/logs.txt 2>&1",
+    "start": "node -r dotenv/config app.js > ./public/logs.log 2> ./public/errors.log",
     "dev": "nodemon -r dotenv/config app.js",
     "serve": "node -r dotenv/config script.js",
     "deploy": "git push heroku master && git push origin master"

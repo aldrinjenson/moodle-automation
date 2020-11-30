@@ -39,7 +39,7 @@
         <p><%= subjectsLeft.join(', ') %></p>
       </div>
 
-      <h4>Next Check at: <%= nextCheckAt %>  </h4>
+      <h4>Next Check at: <%= nextCheckAt %></h4>
 
       <h3>Links Entered:</h3>
       <% if(subjectLinks) Object.entries(subjectLinks).forEach(([sub,link])=>{%>
@@ -48,8 +48,8 @@
 
       <a href="/scrape" class="btn btn-info m-2">Scrape Manually </a>
 
-      <a class="ml-2 mb-3" href="/logs.txt">Open logs</a>
-      <iframe src="/temp.txt" width="100%" frameborder="1"></iframe>
+      <a class="ml-2 mb-3" href="/logs.log">Open logs</a>
+      <iframe src="/temp.log" width="100%" frameborder="1"></iframe>
     </div>
   </body>
 </html>
