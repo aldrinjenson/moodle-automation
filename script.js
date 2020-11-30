@@ -32,8 +32,8 @@ const checkManualMarking = async (page) => {
 
 const markAttendance = async (page, bot, isFromTelegram) => {
   checkDetails.timesChecked++;
-  try {
-    for (const [subject, subjectLink] of Object.entries(subjectLinks)) {
+  for (const [subject, subjectLink] of Object.entries(subjectLinks)) {
+    try {
       if (
         !checkDetails.subjectsMarked.includes(subject) &&
         !checkDetails.manuallyMarked.includes(subject)
@@ -89,26 +89,24 @@ const markAttendance = async (page, bot, isFromTelegram) => {
           } else logMsg(`Not available for ${subject}`);
         }
       }
+    } catch (error) {
+      console.error(error);
     }
-  } catch (error) {
-    console.error(error);
-  } finally {
-    checkDetails.subjectsLeft = Object.keys(subjectLinks).filter(
-      (sub) =>
-        !checkDetails.subjectsMarked.includes(sub) &&
-        !checkDetails.manuallyMarked.includes(sub)
-    );
-    logMsg(`Times Checked = ${checkDetails.timesChecked}`);
-    logMsg(`Times Marked Today = ${checkDetails.timesMarked}`);
-    logMsg("Subjects Marked Today: " + checkDetails.subjectsMarked.join(", "));
-    logMsg(
-      "Subjects Manually marked Today: " +
-        checkDetails.manuallyMarked.join(", ")
-    );
-    logMsg("Subjects Left to Mark: " + checkDetails.subjectsLeft.join(", "));
-    logMsg("Next check at " + checkDetails.nextCheckAt);
-    isFromTelegram && sendLogs(bot);
   }
+  checkDetails.subjectsLeft = Object.keys(subjectLinks).filter(
+    (sub) =>
+      !checkDetails.subjectsMarked.includes(sub) &&
+      !checkDetails.manuallyMarked.includes(sub)
+  );
+  logMsg(`Times Checked = ${checkDetails.timesChecked}`);
+  logMsg(`Times Marked Today = ${checkDetails.timesMarked}`);
+  logMsg("Subjects Marked Today: " + checkDetails.subjectsMarked.join(", "));
+  logMsg(
+    "Subjects Manually marked Today: " + checkDetails.manuallyMarked.join(", ")
+  );
+  logMsg("Subjects Left to Mark: " + checkDetails.subjectsLeft.join(", "));
+  logMsg("Next check at " + checkDetails.nextCheckAt);
+  isFromTelegram && sendLogs(bot);
 };
 
 const scrape = async (bot, isFromTelegram = false) => {
