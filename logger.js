@@ -8,17 +8,35 @@ const logMsg = (msg) => {
   logStream.write(msg + "\n");
 };
 
-const sendLogs = (bot) => {
-  fs.readFile(filePath, (err, data) => {
-    if (err) {
+const read = () => {
+  return new Promise((resolve, reject) => {
+    fs.readFile(filePath, (err, data) => {
+      if (err) reject(err);
+      resolve(data);
+    });
+  });
+};
+
+const send = (bot) => {
+  return new Promise((resolve, reject) => {
+    fs.readFile(filePath, (err, data) => {
+      if (err) reject(err);
+      bot.sendMessage(process.env.CHAT_ID, data.toString());
+      resolve();
+    });
+  });
+};
+
+const sendLogs = async (bot) => {
+  read()
+    .then(() => send(bot))
+    .then(() => {
+      fs.writeFile(filePath, "", () => console.log("File cleared"));
+    })
+    .catch((err) => {
       console.error(err);
-      return;
-    }
-    bot.sendMessage(process.env.CHAT_ID, data.toString());
-  });
-  fs.writeFile(filePath, "", function () {
-    console.log("File cleared");
-  });
+      bot.sendMessage(process.env.CHAT_ID, err.toString());
+    });
 };
 
 module.exports = { logMsg, sendLogs };

@@ -91,6 +91,7 @@ const markAttendance = async (page, bot, isFromTelegram) => {
       }
     } catch (error) {
       console.error(error);
+      bot.sendMessage(process.env.CHAT_ID, `${subject} - ${error.toString()}`);
     }
   }
   checkDetails.subjectsLeft = Object.keys(subjectLinks).filter(
