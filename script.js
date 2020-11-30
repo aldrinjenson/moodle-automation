@@ -86,7 +86,7 @@ const markAttendance = async (page, bot, isFromTelegram) => {
           if (isManuallyMarked) {
             logMsg(`Manually marked for ${subject}`);
             checkDetails.manuallyMarked.push(subject);
-          } else logMsg(`Not available for ${subject}`);
+          } else console.log(`Not available for ${subject}`);
         }
       }
     } catch (error) {
@@ -101,7 +101,7 @@ const markAttendance = async (page, bot, isFromTelegram) => {
   );
   logMsg(`Times Checked = ${checkDetails.timesChecked}`);
   logMsg(`Times Marked Today = ${checkDetails.timesMarked}`);
-  logMsg("Subjects Marked Today: " + checkDetails.subjectsMarked.join(", "));
+  logMsg("\nSubjects Marked Today: " + checkDetails.subjectsMarked.join(", "));
   logMsg(
     "Subjects Manually marked Today: " + checkDetails.manuallyMarked.join(", ")
   );
