@@ -113,7 +113,7 @@ const markAttendance = async (page, bot, isFromTelegram) => {
 const scrape = async (bot, isFromTelegram = false) => {
   checkDetails = await readObjFromFile();
   let dt = new Date();
-  logMsg(`\nChecking at ${dt.toLocaleTimeString()}`);
+  logMsg(`\nChecking at ${dt.toLocaleTimeString("en-IN")}`);
   if (dt.getHours() < 9) {
     checkDetails.timesChecked = 0;
     checkDetails.timesMarked = 0;
@@ -122,7 +122,7 @@ const scrape = async (bot, isFromTelegram = false) => {
   }
   dt.setMinutes(1);
   dt.setHours(dt.getHours() == 3 ? 9 : dt.getHours() + 1);
-  checkDetails.nextCheckAt = dt.toLocaleTimeString("en-US", dateOptions);
+  checkDetails.nextCheckAt = dt.toLocaleTimeString("en-IN", dateOptions);
 
   console.log("Subjects marked = ", checkDetails.subjectsMarked.join(","));
   console.log("times checked = " + checkDetails.timesChecked);
