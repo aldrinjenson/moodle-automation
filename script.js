@@ -39,7 +39,11 @@ const markAttendance = async (page, bot, isFromTelegram) => {
         !checkDetails.manuallyMarked.includes(subject)
       ) {
         await page.goto(subjectLink);
-        await page.waitForSelector(".statuscol");
+        const isPresent = (await page.waitForSelector(".statuscol")) || "";
+        if (!isPresent) {
+          console.log("Option to mark attendance not available");
+          continue;
+        }
 
         const attendanceLink = await page.evaluate(() => {
           let link = document.querySelector(".statuscol a");
@@ -128,13 +132,18 @@ const scrape = async (bot, isFromTelegram = false) => {
   console.log("times checked = " + checkDetails.timesChecked);
 
   const browser = await puppeteer.launch({ args: ["--no-sandbox"] });
+  // const browser = await puppeteer.launch({ headless: false });
   const page = await browser.newPage();
-  await page.goto(process.env.BASE_URL);
-  await page.type("#username", process.env.USERNAME);
-  await page.type("#password", process.env.PASS);
-  await page.keyboard.press("Enter");
-  await page.waitForSelector(".colatt");
-  await markAttendance(page, bot, isFromTelegram);
+  try {
+    await page.goto(process.env.BASE_URL);
+    await page.type("#login_username", process.env.USERNAME);
+    await page.type("#login_password", process.env.PASS);
+    await page.keyboard.press("Enter");
+    await page.waitForNavigation({ waitUntil: "networkidle2" });
+    await markAttendance(page, bot, isFromTelegram);
+  } catch (error) {
+    console.log("Error ocurred: " + error);
+  }
   await browser.close();
   writeObjToFile(checkDetails);
 };
