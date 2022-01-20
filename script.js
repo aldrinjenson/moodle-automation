@@ -132,8 +132,8 @@ const scrape = async (bot, isFromTelegram = false) => {
   console.log("times checked = " + checkDetails.timesChecked);
 
   // comment out this line and uncomment the ine below to see progress while debugging
-  // const browser = await puppeteer.launch({ args: ["--no-sandbox"] });
-  const browser = await puppeteer.launch({ headless: false });
+  const browser = await puppeteer.launch({ args: ["--no-sandbox"] });
+  // const browser = await puppeteer.launch({ headless: false });
   const page = await browser.newPage();
   try {
     await page.goto(process.env.BASE_URL);
