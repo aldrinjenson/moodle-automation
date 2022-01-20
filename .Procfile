@@ -1,1 +1,1 @@
-web: node app.js > public/logFile.txt
+web: npm start > public/logFile.txt

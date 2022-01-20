@@ -131,13 +131,14 @@ const scrape = async (bot, isFromTelegram = false) => {
   console.log("Subjects marked = ", checkDetails.subjectsMarked.join(","));
   console.log("times checked = " + checkDetails.timesChecked);
 
-  const browser = await puppeteer.launch({ args: ["--no-sandbox"] });
-  // const browser = await puppeteer.launch({ headless: false });
+  // comment out this line and uncomment the ine below to see progress while debugging
+  // const browser = await puppeteer.launch({ args: ["--no-sandbox"] });
+  const browser = await puppeteer.launch({ headless: false });
   const page = await browser.newPage();
   try {
     await page.goto(process.env.BASE_URL);
-    await page.type("#login_username", process.env.USERNAME);
-    await page.type("#login_password", process.env.PASS);
+    await page.type("#login_username", process.env.MOODLE_USERNAME);
+    await page.type("#login_password", process.env.MOODLE_PASSWORD);
     await page.keyboard.press("Enter");
     await page.waitForNavigation({ waitUntil: "networkidle2" });
     await markAttendance(page, bot, isFromTelegram);
